@@ -4,6 +4,7 @@ import shlex
 import subprocess
 import base64
 import logging
+import secrets
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
@@ -54,8 +55,8 @@ def execute():
         timeout = int(request_json["timeout"])
     except ValueError:
         return bad_request("Timeout format invalid")
-
-    path = "/tmp/execute.sh"
+    unique_token = secrets.token_hex(15)
+    path = '/tmp/execute-%s.sh' % unique_token
     with open(path, "w") as f:
         f.write(executable.decode())
 
