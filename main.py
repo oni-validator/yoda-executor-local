@@ -77,11 +77,14 @@ def execute():
         returncode = proc.returncode
         stdout = proc.stdout.read(MAX_DATA_SIZE).decode()
         stderr = proc.stderr.read(MAX_DATA_SIZE).decode()
+        if returncode != 0:
+            app.logger.error(stderr)
         return success(returncode, stdout, stderr, "")
     except OSError as err:
-        app.logger.error(err);
+        app.logger.error(err)
         return success(126, "", "", "Execution fail")
-    except subprocess.TimeoutExpired:
+    except subprocess.TimeoutExpired as err:
+        app.logger.error(err)
         return success(111, "", "", "Execution time limit exceeded")
 
 # Run the app
