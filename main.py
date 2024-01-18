@@ -5,6 +5,7 @@ import subprocess
 import base64
 import logging
 import secrets
+import time
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
@@ -66,6 +67,8 @@ def execute():
         for key, value in request_json.get("env", {}).items():
             env[key] = value
 
+        time.sleep(0.002)
+
         proc = subprocess.Popen(
             [path] + shlex.split(request_json["calldata"]),
             env=env,
@@ -77,11 +80,14 @@ def execute():
         returncode = proc.returncode
         stdout = proc.stdout.read(MAX_DATA_SIZE).decode()
         stderr = proc.stderr.read(MAX_DATA_SIZE).decode()
+        if returncode != 0:
+            app.logger.error(stderr)
         return success(returncode, stdout, stderr, "")
     except OSError as err:
-        app.logger.error(err);
+        app.logger.error(err)
         return success(126, "", "", "Execution fail")
-    except subprocess.TimeoutExpired:
+    except subprocess.TimeoutExpired as err:
+        app.logger.error(err)
         return success(111, "", "", "Execution time limit exceeded")
 
 # Run the app
