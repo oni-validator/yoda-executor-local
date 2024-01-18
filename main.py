@@ -5,6 +5,7 @@ import subprocess
 import base64
 import logging
 import secrets
+import time
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
@@ -65,6 +66,8 @@ def execute():
         env = os.environ.copy()
         for key, value in request_json.get("env", {}).items():
             env[key] = value
+
+        time.sleep(0.002)
 
         proc = subprocess.Popen(
             [path] + shlex.split(request_json["calldata"]),
